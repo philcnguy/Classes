@@ -1,0 +1,7 @@
+clear all; clc;
+
+a = 
+b = 
+f = RR_poly([-1 -1 -3 -3 -6 -6],1);
+RR_poly([-1 -1 -3 -3 -5 -5],1)
+[x,y] = RR_diophantine(a,b,f);
