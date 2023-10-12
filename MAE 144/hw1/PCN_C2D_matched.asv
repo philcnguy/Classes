@@ -1,0 +1,8 @@
+function [Dz] = PCN_C2D_matched(Ds, h, omega_bar, causality)
+    if nargin < 4
+        causality = "strictly";
+    else
+        causality = "semi"
+    end
+    Dz = 1;
+end
