@@ -3,7 +3,7 @@ function [Dz] = PCN_C2D_matched(Ds, h, omega_bar, causality)
 % Perform a matched z-transform to convert Ds(s) to Dz(z).
 % INPUTS:   Ds  controller in continuous time
 %           h   timestep
-%           omega_bar   frequency of interest, default value of 1
+%           omega_bar   frequency of interest, default value of 0
 %           causality   Dz(z) either semi-causal or strictly-causal,
 %           default value of strictly-causal
 % OUTPUTS:  Dz controller converted to discrete time
@@ -48,6 +48,14 @@ function [Dz] = PCN_C2D_matched(Ds, h, omega_bar, causality)
             z_zeros(end) = [];
             z_num = RR_poly(z_zeros, 1);
             Dz = RR_tf(z_num, z_den);
+        end
+    end
+    
+    if omega_bar == 0
+        for i = length(Dz.p):-1:1
+            if Dz.p(i) < 1e-4
+                error("ERROR" + newline + "Use nonzero value for omega_bar.");
+            end
         end
     end
 
