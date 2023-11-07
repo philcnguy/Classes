@@ -1,0 +1,22 @@
+clear all; clc; clf;
+
+s = tf('s');
+m=1;
+w=1;
+K=1;
+
+GH1 = 12 * K/ (m*w^2*s^2);
+
+figure(1)
+rlocus(GH1)
+figure(1)
+rlocus(GH1 / (1 + GH1));
+figure(2)
+bode(GH1)
+
+GH2 = 12 * K * (s + 1) / (m*w^2*s^2*(s+10));
+
+figure(3)
+rlocus(GH2 / (1 + GH2));
+figure(4)
+bode(GH2);
