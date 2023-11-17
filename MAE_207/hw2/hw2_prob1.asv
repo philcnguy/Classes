@@ -1,0 +1,30 @@
+function [output] = hw2_prob1(flag, input, mu, time)
+
+if (strcmp(flag, 'koe'))
+    a = input(1);
+    e = input(2);
+    i = input(3);
+    Om = input(4);
+    w = input(5);
+    M = input(6);
+    f = input(6);
+
+    if(strcmp(angletype, 'deg'))
+        i = i*d2r;
+        Om = Om*d2r;
+        w  = w*d2r;
+        M = M*d2r;
+        f = f*d2r;
+    end
+
+    in = mod(in, pi);
+    Om = mod(Om, 2*pi);
+    w  = mod(w, 2*pi);
+    M0 = mod(M0, 2*pi);   
+
+
+elseif (strcmp(flag, 'rv'))
+    disp(0);
+end
+
+end
