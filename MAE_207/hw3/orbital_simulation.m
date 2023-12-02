@@ -1,4 +1,4 @@
-function orbital_simulation_3()
+function orbital_simulation()
 
     % Parameters
     mu = 1;
