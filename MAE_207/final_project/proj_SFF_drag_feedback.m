@@ -127,9 +127,9 @@ for j = 1:interval:length(time) - 1
     vd          = [ vd ; xd(:,4:6) ];
     xd0         = [rd(end, 1:3)'; vd(end, 1:3)'];
 
-    disp(const.Acs);
-    disp(j);
-    disp(time(j)/3600);
+%     disp(const.Acs);
+%     disp(j);
+%     disp(time(j)/3600);
 
 %    disp(rc(j+interval,1:3));
 %    norm(rd(end,1:3));
