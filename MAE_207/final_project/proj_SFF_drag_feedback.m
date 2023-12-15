@@ -17,8 +17,8 @@ REFERENCES:
     Schaub & Junkins, Analytical Mechanics of Space Systems, 2nd Ed., 2009
 %}
 
-clearvars; close all; clc
-%clearvars; clc
+%clearvars; close all; clc
+clearvars; clc
 format long 
 
 % -------------------------------------------------------------------------
@@ -225,4 +225,4 @@ figure(5);
     plot(time / 3600, sqrt(sum((rc - rd).^2,2)), Color = 'blue');
     xlabel("Time [hr]");
     ylabel("Distance Between Satellites [km]");
-%    legend('Constant Area', 'Changing Area');
+    legend('Constant Area', 'Changing Area');
