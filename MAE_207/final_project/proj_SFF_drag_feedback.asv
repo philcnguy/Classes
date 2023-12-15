@@ -80,25 +80,41 @@ kepd_osc        = mean2osc( kepd_mean , const , 'mean' , 'deg' );
 
 %  Specify number of points in integration 
 T               = 2 * pi * sqrt( kepc_osc(1)^3 / const.mu );   % length of period [s]
-time            = linspace( 0 , 90 * T , 5001 );
+time            = linspace( 0 , 45 * T , 5001 );
 
 %  Set integrator options
 tol             = 1e-12;    
 options         = odeset( 'RelTol' , tol , 'AbsTol' , tol );
 
 %  Chief inertial position and velocity
-const.Acs       = 0.0945;                         % cross-sectional area of chief [ m^2 ]
+const.Acs       = 0.09;                         % cross-sectional area of chief [ m^2 ]
 xc0             = [ rc0 ; vc0 ];
 [ ~ , xc ]      = ode45( @dynamics_Newton , time , xc0 , options , const );
 rc              = xc(:,1:3);
 vc              = xc(:,4:6);
 
 %  Deputy inertial position and velocity
-const.Acs       = 0.0945;                         % cross-sectional area of deputy [ m^2 ]
+const.Acs       = 0.099;                         % cross-sectional area of deputy [ m^2 ]
 xd0             = [ rd0 ; vd0 ];
-[ ~ , xd ]      = ode45( @dynamics_Newton , time , xd0 , options , const );
-rd              = xd(:,1:3);
-vd              = xd(:,4:6);
+% [ ~ , xd ]      = ode45( @dynamics_Newton , time(1:2501) , xd0 , options , const );
+% rd              = xd(:,1:3);
+% vd              = xd(:,4:6);
+% 
+% xd1 = [rd(end, 1:3), vd(end, 1:3)];
+% [ ~ , xdagain ]      = ode45( @dynamics_Newton , time(1:2501) , xd1 , options , const );
+% rd1              = xdagain(:,1:3);
+% vd1              = xdagain(:,4:6);
+
+rd = [];
+vd = [];
+
+interval = 1000;
+for j = 1:1000:length(time) - 1
+    [ ~ , xd ]  = ode45( @dynamics_Newton, time(j:j+interval), xd0, options, const );
+    rd          = [ rd ; xd(:,1:3) ];
+    vd          = [ vd ; xd(:,4:6)];
+    xd0         = [rd(end, 1:3), vd(end, 1:3)];
+end
 
 %  Map inertial to Hill frame
 rho             = zeros(3, length(time));
@@ -185,8 +201,3 @@ figure(4);
     set( gcf , 'position' , [6,0.9,6,4.75] ); 
     set( gcf, 'PaperPositionMode' , 'auto' );     
    
-figure(5);
-    plot(time / 3600, sqrt(sum((rc - rd).^2,2)), Color = 'red');
-    xlabel("Time [hr]");
-    ylabel("Distance Between Satellites [km]");
-    hold on

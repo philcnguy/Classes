@@ -17,7 +17,8 @@ REFERENCES:
     Schaub & Junkins, Analytical Mechanics of Space Systems, 2nd Ed., 2009
 %}
 
-clearvars; close all; clc
+%clearvars; close all; clc
+clearvars; clc
 format long 
 
 % -------------------------------------------------------------------------
@@ -96,9 +97,42 @@ vc              = xc(:,4:6);
 %  Deputy inertial position and velocity
 const.Acs       = 0.0945;                         % cross-sectional area of deputy [ m^2 ]
 xd0             = [ rd0 ; vd0 ];
-[ ~ , xd ]      = ode45( @dynamics_Newton , time , xd0 , options , const );
-rd              = xd(:,1:3);
-vd              = xd(:,4:6);
+% [ ~ , xd ]      = ode45( @dynamics_Newton , time(1:2501) , xd0 , options , const );
+% rd              = xd(:,1:3);
+% vd              = xd(:,4:6);
+% 
+% xd1 = [rd(end, 1:3), vd(end, 1:3)];
+% [ ~ , xdagain ]      = ode45( @dynamics_Newton , time(1:2501) , xd1 , options , const );
+% rd1              = xdagain(:,1:3);
+% vd1              = xdagain(:,4:6);
+
+rd = [];
+vd = [];
+
+interval = 50;
+for j = 1:interval:length(time) - 1
+    if j < 2000
+        const.Acs = const.Acs - 0.0001;
+    elseif j < 3500
+        const.Acs = const.Acs + 0.0002;
+    else
+        const.Acs = const.Acs - 0.0001;
+    end
+
+    [ ~ , xd ]  = ode45( @dynamics_Newton, time(j:j+interval), xd0, options, const );
+    if j ~= 1
+        xd = xd(2:end,1:6);
+    end
+    rd          = [ rd ; xd(:,1:3) ];
+    vd          = [ vd ; xd(:,4:6) ];
+    xd0         = [rd(end, 1:3)'; vd(end, 1:3)'];
+
+    disp(const.Acs);
+
+%    disp(rc(j+interval,1:3));
+%    norm(rd(end,1:3));
+%    disp(norm(rc(j+interval,1:3) - rd(end,1:3)));
+end
 
 %  Map inertial to Hill frame
 rho             = zeros(3, length(time));
@@ -119,74 +153,74 @@ set( 0 , 'DefaultAxesColorOrder' , mymap )
 
 idx = find( time < T );
 
-figure(1); 
-    plot3( rho(:,1) , rho(:,2) , rho(:,3) );
-    hold all
-    plot3( rho(idx,1) , rho(idx,2) , rho(idx,3) )
-    plot3( 0 , 0 , 0 , 'k.' , 'MarkerSize' , 21 );
-    grid on 
-    box on         
-    hXLabel = xlabel( 'Radial [km]' );
-    hYLabel = ylabel( 'Along-Track [km]' );
-    hZLabel = zlabel( 'Out-of-Plane [km]' );  
-    set( gca , 'FontName' , 'Helvetica' );
-    set( [ hXLabel , hYLabel , hZLabel ] , 'FontName' , 'AvantGarde' , ...
-         'FontSize' , 10 );
-    set( gca , 'TickLength' , [0.01 0.01] );
-    set( gcf , 'units' , 'inches' , 'NumberTitle' , 'off' );
-    set( gcf , 'position' , [0,6.75,6,4.75] );    
-    set( gcf, 'PaperPositionMode' , 'auto' );     
-
-figure(2); 
-    plot( rho(:,1) , rho(:,2) );
-    hold all
-    plot( rho(idx,1) , rho(idx,2) );
-    plot( 0 , 0 , 'k.', 'MarkerSize', 21 );    
-    grid on         
-    hXLabel = xlabel( 'Radial [km]' );
-    hYLabel = ylabel( 'Along-Track [km]' );
-    set( gca , 'FontName' , 'Helvetica' );
-    set( [ hXLabel , hYLabel ] , 'FontName' , 'AvantGarde' , ...
-         'FontSize' , 10 );
-    set( gca , 'TickLength' , [0.01 0.01] );
-    set( gcf , 'units' , 'inches' , 'NumberTitle' , 'off' );
-    set( gcf , 'position' , [6,6.75,6,4.75] );     
-    set( gcf, 'PaperPositionMode' , 'auto' );     
-    
-figure(3);
-    plot( rho(:,1) , rho(:,3) );
-    hold all
-    plot( rho(idx,1) , rho(idx,3) );
-    plot( 0 , 0 , 'k.' , 'MarkerSize' , 21 );    
-    grid on
-    hXLabel = xlabel( 'Radial [km]' );
-    hYLabel = ylabel( 'Out-of-Plane [km]' );
-    set( gca , 'FontName' , 'Helvetica' );
-    set( [ hXLabel , hYLabel ] , 'FontName' , 'AvantGarde' , ...
-         'FontSize' , 10 );
-    set( gca , 'TickLength' , [0.01 0.01] );
-    set( gcf , 'units' , 'inches' , 'NumberTitle' , 'off' );
-    set( gcf , 'position' , [0,0.9,6,4.75] ); 
-    set( gcf, 'PaperPositionMode' , 'auto' );     
-
-figure(4);
-    plot( rho(:,2) , rho(:,3) );
-    hold all
-    plot( rho(idx,2) , rho(idx,3) );
-    plot( 0 , 0 , 'k.' , 'MarkerSize' , 21 );     
-    grid on
-    hXLabel = xlabel( 'Along-Track [km]' );
-    hYLabel = ylabel( 'Out-of-Plane [km]' );
-    set( gca , 'FontName' , 'Helvetica' );
-    set( [ hXLabel , hYLabel ] , 'FontName' , 'AvantGarde' , ...
-         'FontSize' , 10 );
-    set( gca , 'TickLength' , [0.01 0.01] );
-    set( gcf , 'units' , 'inches' , 'NumberTitle' , 'off' );
-    set( gcf , 'position' , [6,0.9,6,4.75] ); 
-    set( gcf, 'PaperPositionMode' , 'auto' );     
+% figure(1); 
+%     plot3( rho(:,1) , rho(:,2) , rho(:,3) );
+%     hold all
+%     plot3( rho(idx,1) , rho(idx,2) , rho(idx,3) )
+%     plot3( 0 , 0 , 0 , 'k.' , 'MarkerSize' , 21 );
+%     grid on 
+%     box on         
+%     hXLabel = xlabel( 'Radial [km]' );
+%     hYLabel = ylabel( 'Along-Track [km]' );
+%     hZLabel = zlabel( 'Out-of-Plane [km]' );  
+%     set( gca , 'FontName' , 'Helvetica' );
+%     set( [ hXLabel , hYLabel , hZLabel ] , 'FontName' , 'AvantGarde' , ...
+%          'FontSize' , 10 );
+%     set( gca , 'TickLength' , [0.01 0.01] );
+%     set( gcf , 'units' , 'inches' , 'NumberTitle' , 'off' );
+%     set( gcf , 'position' , [0,6.75,6,4.75] );    
+%     set( gcf, 'PaperPositionMode' , 'auto' );     
+% 
+% figure(2); 
+%     plot( rho(:,1) , rho(:,2) );
+%     hold all
+%     plot( rho(idx,1) , rho(idx,2) );
+%     plot( 0 , 0 , 'k.', 'MarkerSize', 21 );    
+%     grid on         
+%     hXLabel = xlabel( 'Radial [km]' );
+%     hYLabel = ylabel( 'Along-Track [km]' );
+%     set( gca , 'FontName' , 'Helvetica' );
+%     set( [ hXLabel , hYLabel ] , 'FontName' , 'AvantGarde' , ...
+%          'FontSize' , 10 );
+%     set( gca , 'TickLength' , [0.01 0.01] );
+%     set( gcf , 'units' , 'inches' , 'NumberTitle' , 'off' );
+%     set( gcf , 'position' , [6,6.75,6,4.75] );     
+%     set( gcf, 'PaperPositionMode' , 'auto' );     
+%     
+% figure(3);
+%     plot( rho(:,1) , rho(:,3) );
+%     hold all
+%     plot( rho(idx,1) , rho(idx,3) );
+%     plot( 0 , 0 , 'k.' , 'MarkerSize' , 21 );    
+%     grid on
+%     hXLabel = xlabel( 'Radial [km]' );
+%     hYLabel = ylabel( 'Out-of-Plane [km]' );
+%     set( gca , 'FontName' , 'Helvetica' );
+%     set( [ hXLabel , hYLabel ] , 'FontName' , 'AvantGarde' , ...
+%          'FontSize' , 10 );
+%     set( gca , 'TickLength' , [0.01 0.01] );
+%     set( gcf , 'units' , 'inches' , 'NumberTitle' , 'off' );
+%     set( gcf , 'position' , [0,0.9,6,4.75] ); 
+%     set( gcf, 'PaperPositionMode' , 'auto' );     
+% 
+% figure(4);
+%     plot( rho(:,2) , rho(:,3) );
+%     hold all
+%     plot( rho(idx,2) , rho(idx,3) );
+%     plot( 0 , 0 , 'k.' , 'MarkerSize' , 21 );     
+%     grid on
+%     hXLabel = xlabel( 'Along-Track [km]' );
+%     hYLabel = ylabel( 'Out-of-Plane [km]' );
+%     set( gca , 'FontName' , 'Helvetica' );
+%     set( [ hXLabel , hYLabel ] , 'FontName' , 'AvantGarde' , ...
+%          'FontSize' , 10 );
+%     set( gca , 'TickLength' , [0.01 0.01] );
+%     set( gcf , 'units' , 'inches' , 'NumberTitle' , 'off' );
+%     set( gcf , 'position' , [6,0.9,6,4.75] ); 
+%     set( gcf, 'PaperPositionMode' , 'auto' );     
    
 figure(5);
-    plot(time / 3600, sqrt(sum((rc - rd).^2,2)), Color = 'red');
+    plot(time / 3600, sqrt(sum((rc - rd).^2,2)), Color = 'blue');
     xlabel("Time [hr]");
     ylabel("Distance Between Satellites [km]");
-    hold on
+    legend('Constant Area', 'Changing Area');
