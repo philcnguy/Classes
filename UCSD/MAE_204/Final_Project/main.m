@@ -1,6 +1,8 @@
 clear all; clc;
 
-delete 'file.csv';
+%% Tests TrajectoryGenerator
+
+delete 'trajectory.csv';
 
 Tse_i = [1 0 0 0;
         0 1 0 0;
@@ -30,3 +32,18 @@ Tce_standoff =  [-1 0 0 0;
 k = 1;
 
 [a,b] = TrajectoryGenerator(Tse_i, Tsc_i, Tsc_f, Tce_grasp, Tce_standoff, k);
+
+%% Tests NextState
+
+delete 'states.csv';
+
+N = 100;
+state = [0 0 0 0 0 0 0 0 0 0 0 0];
+velocities = [1 1 1 1 1 1 1 1 1];
+timestep = 0.01;
+max_velocity = 0; % needs to be changed
+
+for i = 1:N
+    state = NextState(state, velocities, timestep, max_velocity);
+    writematrix([state 0], 'states.csv', 'WriteMode','append');
+end

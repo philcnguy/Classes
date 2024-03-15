@@ -1,9 +1,12 @@
-function [configs, file] = TrajectoryGenerator(Tse_i, Tsc_i, Tsc_f, Tce_grasp, Tce_standoff, k)
+function [configs, trajectory] = TrajectoryGenerator(Tse_i, Tsc_i, Tsc_f, Tce_grasp, Tce_standoff, k)
 %TRAJECTORYGENERATOR Generates trajectories
 
 addpath("C:\Users\Phillip\Documents\GitHub\Classes\UCSD\MAE_204\mr")
 
 % Each entry of configs is {4x4 transformation matrix, gripper state}
+% Each line of trajectory corresponds to one configuration Tse of the
+% end-effector, expressed as 13 variables separated by commas:
+% r11, r12, r13, r21, r22, r23, r31, r32, r33, px, py, pz, gripper_state
 
 configs = {};
 
@@ -83,10 +86,10 @@ end
 % Write trajectory matrices to file
 
 for i = 1:length(configs)
-    writematrix(mat2line(configs{i,1}, configs{i,2}), 'file.csv', 'WriteMode','append')
+    writematrix(mat2line(configs{i,1}, configs{i,2}), 'trajectory.csv', 'WriteMode','append')
 end
 
-file = 'file.csv';
+trajectory = 'trajectory.csv';
 
 disp("All done!");
 
