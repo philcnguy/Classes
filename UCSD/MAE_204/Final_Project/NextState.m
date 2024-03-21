@@ -18,7 +18,7 @@ r = 0.0475;
 l = 0.47 / 2;
 w = 0.3 / 2;
 
-theta_dot = velocities(6:9).';
+theta_dot = velocities(6:9).' * timestep;
 F = r / 4 * [-1 / (l + w) 1 / (l + w) 1 / (l + w) -1 / (l + w);
             1 1 1 1;
             -1 1 -1 1];
