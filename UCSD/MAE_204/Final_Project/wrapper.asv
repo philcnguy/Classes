@@ -35,7 +35,7 @@ k = 1;
 
 delete 'states.csv';
 
-Kp = zeros(6,6); Ki = zeros(6,6);
+Kp = eye(6); Ki = zeros(6,6);
 %Kp = eye(6); Ki = eye(6);
 timestep = 0.01;
 max_velocity = 0;
@@ -65,8 +65,6 @@ Blist = [[0;0;1;0;0.033;0], ...
     [0;-1;0;-0.2176;0;0], ...
     [0;0;1;0;0;0]];
 
-err = zeros(1999,6);
-
 for i = 1:length(ref_configs) - 1
     % Calculate new Tse = Tsb(q) * Tb0 * T0e
 
@@ -81,15 +79,12 @@ for i = 1:length(ref_configs) - 1
 %    disp(i);
 %    disp(Tse);
 
-    [V, speeds, Xerr] = FeedbackControl(Tse, ref_configs{i}, ref_configs{i + 1}, Kp, Ki, timestep, act_configs(i,1:13));
-    err(i,1:6) = Xerr.';
+    [V, speeds] = FeedbackControl(Tse, ref_configs{i}, ref_configs{i + 1}, Kp, Ki, timestep, act_configs(i,1:13));
     act_configs(i + 1,1:13) = [NextState(act_configs(i,1:12), speeds.', timestep, max_velocity), ref_configs{i, 2}];
+
+
 end
 
 writematrix(act_configs, 'states.csv');
 
-plot(linspace(1,20,1999), err);
-legend('omega_x', 'omega_y', 'omega_z', 'v_x', 'v_y', 'v_z');
-ylabel("error");
-xlabel("time, s");
 disp("All done!");
