@@ -65,7 +65,7 @@ for i = 1:length(traj) - 1
         0 0 1 0.0963;
         0 0 0 1];
 
-    T0e = FKinBody(M0e, Blist, act_configs(i,4:8));
+    T0e = FKinBody(M0e, Blist, act_configs(i,4:8).');
 
     Tse = Tsb * Tb0 * T0e;
 

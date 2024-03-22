@@ -2,6 +2,8 @@ clear all; clc;
 
 delete 'trajectory.csv';
 
+addpath("C:\Users\phill\OneDrive\Documents\GitHub\Classes\UCSD\MAE_204\mr")
+
 Tse_i_ref = [0 0 1 0;
     0 1 0 0;
     -1 0 0 .5;
@@ -35,8 +37,8 @@ k = 1;
 
 delete 'states.csv';
 
-Kp = zeros(6,6); Ki = zeros(6,6);
-%Kp = eye(6); Ki = eye(6);
+%Kp = zeros(6,6); Ki = zeros(6,6);
+Kp = eye(6); Ki = eye(6);
 timestep = 0.01;
 max_velocity = 0;
 
@@ -70,7 +72,7 @@ err = zeros(1999,6);
 for i = 1:length(ref_configs) - 1
     % Calculate new Tse = Tsb(q) * Tb0 * T0e
 
-    T0e = FKinBody(M0e, Blist, act_configs(i,4:8));
+    T0e = FKinBody(M0e, Blist, act_configs(i,4:8).');
 
     Tsb = [cos(act_configs(i,1)) -sin(act_configs(i,1)) 0 act_configs(i,2);
         sin(act_configs(i,1)) cos(act_configs(i,1)) 0 act_configs(i,3);
@@ -78,9 +80,6 @@ for i = 1:length(ref_configs) - 1
         0 0 0 1];
 
     Tse = Tsb * Tb0 * T0e;
-%    disp(i);
-%    disp(Tse);
-
     [V, speeds, Xerr] = FeedbackControl(Tse, ref_configs{i}, ref_configs{i + 1}, Kp, Ki, timestep, act_configs(i,1:13));
     err(i,1:6) = Xerr.';
     act_configs(i + 1,1:13) = [NextState(act_configs(i,1:12), speeds.', timestep, max_velocity), ref_configs{i, 2}];

@@ -9,7 +9,7 @@ function [V, speeds, Xerr] = FeedbackControl(X, Xd, Xd_next, Kp, Ki, timestep, c
 % OUTPUTS:  V - The commanded end-effector twist expressed in the end-effector frame {e}
 %           speeds - The commanded wheel speeds, u and the commanded arm joint speeds, θ˙
 
-addpath("C:\Users\Phillip\Documents\GitHub\Classes\UCSD\MAE_204\mr")
+addpath("C:\Users\phill\OneDrive\Documents\GitHub\Classes\UCSD\MAE_204\mr")
 
 % Calculate J_arm
 

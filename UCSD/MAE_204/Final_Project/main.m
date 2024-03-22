@@ -65,8 +65,8 @@ X = [0.17 0 0.985 0.387;
     -0.985 0 0.17 0.57;
     0 0 0 1];
 
-% Kp = zeros(6,6); Ki = zeros(6,6);
-Kp = eye(6); Ki = eye(6);
+Kp = zeros(6,6); Ki = zeros(6,6);
+%Kp = eye(6); Ki = eye(6);
 
 timestep = 0.01;
 
