@@ -21,7 +21,7 @@ Tsc_goal = [0 1 0 0;
 
 Tce_grasp = [-1 0 0 0;
     0 1 0 0;
-    0 0 -1 .05;
+    0 0 -1 .005;
     0 0 0 1];
 
 Tce_standoff =  [-1 0 0 0;
@@ -42,8 +42,13 @@ Kp = eye(6); Ki = eye(6);
 timestep = 0.01;
 max_velocity = 0;
 
-Tsb_i = [cos(0) -sin(0) 0 0;
-    sin(0) cos(0) 0 0;
+% Tsb_i = [cos(0) -sin(0) 0 0;
+%     sin(0) cos(0) 0 0;
+%     0 0 1 0.0963;
+%     0 0 0 1];
+
+Tsb_i = [cos(30*pi/180) -sin(30*pi/180) 0 0;
+    sin(30*pi/180) cos(30*pi/180) 0 0;
     0 0 1 0.0963;
     0 0 0 1];
 
@@ -59,7 +64,8 @@ M0e = [1 0 0 0.033;
 
 Tse_i_act = Tsb_i * Tb0 * M0e; % redundant but im keeping it anyways for my sanity
 act_configs = zeros(length(ref_configs), 13);
-act_configs(1,1:13) = [0,0,0,0,0,0,0,0,0,0,0,0,0]; % redundant but im keeping it anyways for my sanity
+%act_configs(1,1:13) = [0,0,0,0,0,0,0,0,0,0,0,0,0];
+act_configs(1,1:13) = [0,0.1,0.1,0,0,0,30*pi/180,0,0,0,0,0,0];
 
 Blist = [[0;0;1;0;0.033;0], ...
     [0;-1;0;-0.5076;0;0], ...
@@ -67,7 +73,7 @@ Blist = [[0;0;1;0;0.033;0], ...
     [0;-1;0;-0.2176;0;0], ...
     [0;0;1;0;0;0]];
 
-err = zeros(1999,6);
+err = zeros(length(ref_configs) - 1,6);
 
 for i = 1:length(ref_configs) - 1
     % Calculate new Tse = Tsb(q) * Tb0 * T0e
@@ -87,7 +93,7 @@ end
 
 writematrix(act_configs, 'states.csv');
 
-plot(linspace(1,20,1999), err);
+plot(linspace(1,15,length(err)), err);
 legend('omega_x', 'omega_y', 'omega_z', 'v_x', 'v_y', 'v_z');
 ylabel("error");
 xlabel("time, s");
