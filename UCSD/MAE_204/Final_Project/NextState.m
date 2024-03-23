@@ -8,8 +8,6 @@ function [next_state] = NextState(state, velocities, timestep, max_velocity)
 
 addpath("C:\Users\phill\OneDrive\Documents\GitHub\Classes\UCSD\MAE_204\mr")
 
-
-
 next_state(4) = state(4) + velocities(5) * timestep;
 next_state(5) = state(5) + velocities(6) * timestep;
 next_state(6) = state(6) + velocities(7) * timestep;

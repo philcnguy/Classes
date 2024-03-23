@@ -1,4 +1,11 @@
-clear all; clc;
+function [] = wrapper(Tsc_i, Tsc_goal, Kp, Ki, filename)
+% WRAPPER   Wrapper code to be used for different cases
+% INPUTS:   Tsc_i - The initial configuration of the cube
+%           Tsc_goal - The goal configuration of the cube
+%           Kp - The P gain matrix
+%           Ki - The I gain patrix
+%           filename - The .csv file name that would be uploaded to the simulation
+% OUTPUTS:
 
 delete 'trajectory.csv';
 
@@ -7,16 +14,6 @@ addpath("C:\Users\phill\OneDrive\Documents\GitHub\Classes\UCSD\MAE_204\mr")
 Tse_i_ref = [0 0 1 0;
     0 1 0 0;
     -1 0 0 .5;
-    0 0 0 1];
-
-Tsc_i = [1 0 0 1;
-    0 1 0 0;
-    0 0 1 0.025;
-    0 0 0 1];
-
-Tsc_goal = [0 1 0 0;
-    -1 0 0 -1;
-    0 0 1 0.025;
     0 0 0 1];
 
 Tce_grasp = [-1 0 0 0;
@@ -33,24 +30,8 @@ k = 1;
 
 [ref_configs, trajectory] = TrajectoryGenerator(Tse_i_ref, Tsc_i, Tsc_goal, Tce_grasp, Tce_standoff, k);
 
-%%
-
-delete 'states.csv';
-
-%Kp = zeros(6,6); Ki = zeros(6,6);
-Kp = eye(6); Ki = eye(6);
 timestep = 0.01;
 max_velocity = 0;
-
-% Tsb_i = [cos(0) -sin(0) 0 0;
-%     sin(0) cos(0) 0 0;
-%     0 0 1 0.0963;
-%     0 0 0 1];
-
-Tsb_i = [cos(30*pi/180) -sin(30*pi/180) 0 0;
-    sin(30*pi/180) cos(30*pi/180) 0 0;
-    0 0 1 0.0963;
-    0 0 0 1];
 
 Tb0 = [1 0 0 0.1662;
     0 1 0 0;
@@ -62,10 +43,8 @@ M0e = [1 0 0 0.033;
     0 0 1 0.6546;
     0 0 0 1];
 
-Tse_i_act = Tsb_i * Tb0 * M0e; % redundant but im keeping it anyways for my sanity
 act_configs = zeros(length(ref_configs), 13);
-%act_configs(1,1:13) = [0,0,0,0,0,0,0,0,0,0,0,0,0];
-act_configs(1,1:13) = [0,0.1,0.1,0,0,0,30*pi/180,0,0,0,0,0,0];
+act_configs(1,1:13) = [0,0.1,0.1,0,0,0,-30*pi/180,0,0,0,0,0,0];
 
 Blist = [[0;0;1;0;0.033;0], ...
     [0;-1;0;-0.5076;0;0], ...
@@ -86,15 +65,19 @@ for i = 1:length(ref_configs) - 1
         0 0 0 1];
 
     Tse = Tsb * Tb0 * T0e;
-    [V, speeds, Xerr] = FeedbackControl(Tse, ref_configs{i}, ref_configs{i + 1}, Kp, Ki, timestep, act_configs(i,1:13));
+    [V, speeds, Xerr] = FeedbackControl(Tse, ref_configs{i}, ref_configs{i + 1}, Kp, Ki, timestep, act_configs(i,1:13), [0,0,0,0,0,0,0,0]);
     err(i,1:6) = Xerr.';
-    act_configs(i + 1,1:13) = [NextState(act_configs(i,1:12), speeds.', timestep, max_velocity), ref_configs{i, 2}];
+    next_config = NextState(act_configs(i,1:12), speeds.', timestep, max_velocity);
+
+    act_configs(i + 1,1:13) = [next_config, ref_configs{i, 2}];
 end
 
-writematrix(act_configs, 'states.csv');
+writematrix(act_configs, filename);
 
 plot(linspace(1,15,length(err)), err);
 legend('omega_x', 'omega_y', 'omega_z', 'v_x', 'v_y', 'v_z');
 ylabel("error");
 xlabel("time, s");
 disp("All done!");
+
+end

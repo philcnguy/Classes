@@ -1,4 +1,4 @@
-function [V, speeds, Xerr] = FeedbackControl(X, Xd, Xd_next, Kp, Ki, timestep, config)
+function [V, speeds, Xerr] = FeedbackControl(X, Xd, Xd_next, Kp, Ki, timestep, config, offendingJoints)
 % FeedbackControl Calculates the task-space feedforward plus feedback control law
 % INPUTS:   X - The current actual end-effector configuration (aka Tse)
 %           Xd - The current reference end-effector configuration (aka Tse,d)
@@ -6,6 +6,7 @@ function [V, speeds, Xerr] = FeedbackControl(X, Xd, Xd_next, Kp, Ki, timestep, c
 %           Kp - The P gain matrix
 %           Ki - The I gain patrix
 %           timestep - The timestep ∆t between reference trajectory configurations
+%           offendingJoints - Indicates joints that are past joint limits
 % OUTPUTS:  V - The commanded end-effector twist expressed in the end-effector frame {e}
 %           speeds - The commanded wheel speeds, u and the commanded arm joint speeds, θ˙
 
@@ -18,8 +19,6 @@ Blist = [[0;0;1;0;0.033;0], ...
     [0;-1;0;-0.3526;0;0], ...
     [0;-1;0;-0.2176;0;0], ...
     [0;0;1;0;0;0]];
-
-%config = [0; 0; 0; 0; 0; 0; 0; 0];%%% is this wrong??? yeah i think it is, need to get config from Tse
 
 J_arm = JacobianBody(Blist, config(4:8));
 
@@ -59,7 +58,7 @@ Xerr = se3ToVec(MatrixLog6(X \ Xd));
 
 Vd = se3ToVec((1 / timestep) * MatrixLog6(Xd \ Xd_next));
 
-V = Adjoint(X \ Xd) * Vd + Kp * Xerr + Ki * Xerr * timestep; %NEED TO INCLUDE INTEGRAL FOR WHEN Ki IS NOT ZERO
+V = Adjoint(X \ Xd) * Vd + Kp * Xerr + Ki * Xerr * timestep;
 
 speeds = pinv(J_e, 1e-3) * V;
 
