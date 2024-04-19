@@ -1,49 +1,44 @@
 clear all; clc; clf
 
+%% Problem 1b
+
 t = linspace(0, 20, 81);
 
-P_0 = 0;
-P_in = 20;
-R = 1.4e6;
-C = 2.5 / (1.25 * 1000 * 1000);
-
-% y(1:4) = (v_0 - v_in) * exp(-t(1:4) / (R * C)) + v_in;
-% 
-% y(5) = (y(4) - 0) * exp(-t(5) / (R * C)) + 0;
-% 
-% plot(t(1:5), y);
+P_in = 20; % kPa
+R = 1.4e6; % 1 / (m * s)
+C = 2.5 / (1.25 * 1000 * 1000); % m * s^2
 
 P = length(zeros(1,81));
 
-% for i = 1:81
-%     if (mod(i,4) ~= 0)
-%         if (mod(i,3) == 1)
-%             P(i) = (0 - P_in) * exp(-t(i) / (R * C)) + P_in;
-%         else
-%             P(i) = (P_0 - P_in) * exp(-t(mod(i,4)) / (R * C)) + P_in;
-%         end
-%     else
-%         P(i) = P(i - 1) * exp(-t(2) / (R * C));
-%         P_0 = P(i);
-%     end
-% end
-
-% P(1) = 0;
-% P(2:4) = (P(1) - P_in) * exp(-t(2:4) / (R * C)) + P_in;
-% P(5) = P(4) * exp(-t(2) / (R * C));
-% P(6:8) = (P(5) - P_in) * exp(-t(2:4) / (R * C)) + P_in;
-% P(9) = P(8) * exp(-t(2) / (R * C));
-% P(10:12) = (P(9) - P_in) * exp(-t(2:4) / (R * C)) + P_in;
-% P(13) = P(12) * exp(-t(2) / (R * C));
-
 P(1) = 0;
 for i = 2:81
-    if (mod(i,4) ~= 1)
+    if (mod(i,4) == 2)
         P(i:i+2) = (P(i-1) - P_in) * exp(-t(2:4) / (R * C)) + P_in;
     elseif (mod(i,4) == 1)
         P(i) = P(i-1) * exp(-t(2) / (R * C));
     end
 end
 
+figure(1)
 plot(t, P);
+xlabel("Time (s)");
+ylabel("Pressure (kPa)");
 
+%% Problem 1c
+h_c = 1.4;
+h_b = 1.6;
+L_channel = 1.2;
+N_channel = 7;
+L = 11.6;
+E = 0.8 * 1000; % kPa
+
+eps_A = (P / E) * (h_c / (h_b - h_c));
+theta = 2 * N_channel * atan(L_channel * eps_A / h_c);
+tip_displacement = L ./ theta .* (1 - cos(theta));
+
+figure(2)
+plot(t, tip_displacement);
+xlabel("Time (s)");
+ylabel("Tip Displacement (m)");
+
+L 
