@@ -1,8 +1,0 @@
-clear all; clc; clf;
-
-%% Problem 2a
-
-b = 15;
-n = 3;
-l = 10;
-theta_i = acos(l/b) *
