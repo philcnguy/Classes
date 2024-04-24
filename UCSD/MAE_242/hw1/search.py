@@ -39,7 +39,6 @@ def depthFirstSearch(xI,xG,n,m,O):
     Q = []
     visited = []
     parents = []
-    # parent node of visited node have same index
     
     Q.append(xI)
     visited.append(xI)
@@ -93,7 +92,6 @@ def breadthFirstSearch(xI,xG,n,m,O):
     Q = []
     visited = []
     parents = []
-    # parent node of visited node have same index
     
     Q.append(xI)
     visited.append(xI)
@@ -142,7 +140,6 @@ def breadthFirstSearch(xI,xG,n,m,O):
 """
 def DijkstraSearch(xI,xG,n,m,O,cost='westCost'):
     Q = []
-    dist = []
     visited = []
     parents = []
     C = []
@@ -151,23 +148,9 @@ def DijkstraSearch(xI,xG,n,m,O,cost='westCost'):
     visited.append(xI)
     parents.append(xI)
     C.append(0)
-    
-# =============================================================================
-#     for i in range(n):
-#         for j in range(m):
-#             if not isWall((i,j),O):
-#                 dist.append(float('inf'))
-#                 prev.append(None)
-#                 Q.append((i,j))
-# =============================================================================
-    
- #   vertices = Q.copy()
-    
-#    dist.append(0)
-    
+
     while len(Q) > 0:
         u = Q.pop(0)
-        # extracting correct element??
         
         if u == xG:
             P = [xG]
@@ -189,7 +172,6 @@ def DijkstraSearch(xI,xG,n,m,O,cost='westCost'):
                         C.append(C[visited.index(u)] + u[0] ** 2)
                     else:
                         C.append(C[visited.index(u)] + (n - 2 + u[0]) ** 2)
- #                   dist.append(float('inf'))
                 else:
                     if cost == 'westCost':
                         if C[visited.index(u)] < C[visited.index(v)]:
@@ -208,61 +190,23 @@ def DijkstraSearch(xI,xG,n,m,O,cost='westCost'):
     numNodes = len(visited)
     actions.pop()
     plot = makePath(xI,xG,getPathFromActions(xI,actions),n,m,O)
-# =============================================================================
-#                     temp = dist[visited.index(u)] + v[0] ** 2 ## is this correct?
-#                     if temp < dist[visited.index(v)]:
-#                         parents[visited.index(v)] = u
-#                         dist[visited.index(v)] = temp
-# =============================================================================
-                        
-            
-                
-# =============================================================================
-#     Q = []
-#     dist = []
-#     prev = []
-#     
-#     for i in range(n):
-#         for j in range(m):
-#             if not isWall((i,j),O):
-#                 dist.append(float('inf'))
-#                 prev.append(None)
-#                 Q.append((i,j))
-#     
-#     vertices = Q.copy()
-#     
-#     dist[Q.index(xI)] = 0
-#     
-#     while len(Q) > 0:
-#         u = Q.pop(dist.index(min(dist)))
-#         
-#         A = []
-#         for a in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
-#             if not collisionCheck(u, a, O):
-#                 if (u[0] + a[0], u[1] + a[1]) in Q:
-#                     A.append((u[0] + a[0], u[1] + a[1]))
-#                 
-#         for v in A:
-#             temp = dist[vertices.index(u)] + v[0] ** 2
-#             if temp < dist[vertices.index(v)]:
-#                 dist[vertices.index(v)] = temp
-#                 prev[vertices.index(v)] = u
-# =============================================================================
-                
-        
-        
-    
+
     return actions, cost, numNodes, plot
 
-def nullHeuristic(state,goal):
-   """
+"""
    A heuristic function estimates the cost from the current state to the nearest
    goal.  This heuristic is trivial.
 
    """
+def nullHeuristic(state,goal):
    return 0
 
-#def aStarSearch(xI,xG,n,m,O,heuristic=nullHeuristic):
+def manhattanHeuristic(state,goal):
+    return abs(state[0] - goal[0]) + abs(state[1] - goal[1])
+
+def euclideanHeuristic(state,goal):
+    return np.sqrt((state[0] - goal[0]) ** 2 + (state[1] - goal[1]) ** 2)
+
 "Search the node that has the lowest combined cost and heuristic first."
 """The function uses a function heuristic as an argument. We have used
   the null heuristic here first, you should redefine heuristics as part of 
@@ -270,8 +214,63 @@ def nullHeuristic(state,goal):
   Your algorithm also needs to return the total cost of the path using
   getCostofActions functions. 
   Finally, the algorithm should return the number of visited
-  nodes during the search."""
-"*** YOUR CODE HERE ***"
+  nodes during the search.
+"""
+def aStarSearch(xI,xG,n,m,O,heuristic=nullHeuristic):
+    Q = []
+    visited = []
+    parents = []
+    C = []
+    heur = []
+    
+    Q.append(xI)
+    visited.append(xI)
+    heur.append(heuristic(xI,xG))
+    parents.append(xI)
+    C.append(0)
+
+    while len(Q) > 0:
+        u = Q.pop(0)
+        
+        if u == xG:
+            P = [xG]
+            while parents[visited.index(u)] != u:
+                u = parents[visited.index(u)]
+                P.insert(0, u)
+        else:
+            A = []
+            for a in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
+                if not collisionCheck(u, a, O):
+                    A.append((u[0] + a[0], u[1] + a[1]))
+                    
+            for v in A:
+                if v not in visited:
+                    visited.append(v)
+                    heur.append(heuristic(xI,xG))
+                    Q.append(v)
+                    parents.append(u)
+                    
+                    Qtemp = [None] * len(Q)
+                    heurtemp = []
+                    for i in range(len(Q)):
+                        Qtemp[i] = Q[i]
+                        heurtemp.append(heur[visited.index(Q[i])])
+                    
+                    Q = []
+                    for i in range(len(Qtemp)):
+                        Q.append(Qtemp[heurtemp.index(min(heurtemp))])
+                        heurtemp[heurtemp.index(min(heurtemp))] = float('inf')
+
+    actions = []
+    for i in range(len(P) - 1):
+        actions.append((P[i + 1][0] - P[i][0], P[i + 1][1] - P[i][1]))
+        
+    cost = getCostOfActions(xI, actions, O)
+    numNodes = len(visited)
+    actions.pop()
+    plot = makePath(xI,xG,getPathFromActions(xI,actions),n,m,O)
+
+    return actions, cost, numNodes, plot
   
 def isWall(x,O):
     nextx = [x[i] for i in range(len(x))]
@@ -295,32 +294,53 @@ def showPath(xI,xG,path,n,m,O):
 if __name__ == '__main__':
     # Run test using smallMaze.py (loads n,m,O)
     # from smallMaze import *
-    # from mediumMaze import *  # try these mazes too
+    from mediumMaze import *  # try these mazes too
     # from bigMaze import *     # try these mazes too
-    from testMaze import *
+    # from testMaze import *
     maze(n,m,O) # prints the maze
+    
+# =============================================================================
+#     xI = (1,1)
+#     xG = (20,8)
+# =============================================================================
     
     xI = (1,1)
     xG = (34,16)
     
 # =============================================================================
-#     actions, cost, numNodes, plot = depthFirstSearch(xI,xG,n,m,O)
-#     showPath(xI,xG,getPathFromActions(xI,actions),n,m,O)
-#     print('Depth-first cost: ' + str(cost))
-#     
-#     actions, cost, numNodes, plot = breadthFirstSearch(xI,xG,n,m,O)
-#     showPath(xI,xG,getPathFromActions(xI,actions),n,m,O)
-#     print('Breadth-first cost: ' + str(cost))
+#     xI = (1,1)
+#     xG = (35,35)
 # =============================================================================
+    
+    actions, cost, numNodes, plot = depthFirstSearch(xI,xG,n,m,O)
+    showPath(xI,xG,getPathFromActions(xI,actions),n,m,O)
+    print('Depth-first cost: ' + str(cost))
+    print('Depth-first number of nodes explored: ' + str(numNodes))
+    
+    actions, cost, numNodes, plot = breadthFirstSearch(xI,xG,n,m,O)
+    showPath(xI,xG,getPathFromActions(xI,actions),n,m,O)
+    print('Breadth-first cost: ' + str(cost))
+    print('Breadth-first number of nodes explored: ' + str(numNodes))
     
     actions, cost, numNodes, plot = DijkstraSearch(xI,xG,n,m,O,'westCost')
     showPath(xI,xG,getPathFromActions(xI,actions),n,m,O)
     print('Dijkstra west cost: ' + str(cost))
+    print('Dijkstra west number of nodes explored: ' + str(numNodes))
     
     actions, cost, numNodes, plot = DijkstraSearch(xI,xG,n,m,O,'eastCost')
     showPath(xI,xG,getPathFromActions(xI,actions),n,m,O)
     print('Dijkstra east cost: ' + str(cost))
+    print('Dijkstra east number of nodes explored: ' + str(numNodes))
     
+    actions, cost, numNodes, plot = aStarSearch(xI,xG,n,m,O,manhattanHeuristic)
+    showPath(xI,xG,getPathFromActions(xI,actions),n,m,O)
+    print('Manhattan heuristic cost: ' + str(cost))
+    print('Manhattan number of nodes explored: ' + str(numNodes))
+    
+    actions, cost, numNodes, plot = aStarSearch(xI,xG,n,m,O,euclideanHeuristic)
+    showPath(xI,xG,getPathFromActions(xI,actions),n,m,O)
+    print('Euclidean heuristic cost: ' + str(cost))
+    print('Euclidean number of nodes explored: ' + str(numNodes))
     
 # =============================================================================
 #     # Sample collision check
