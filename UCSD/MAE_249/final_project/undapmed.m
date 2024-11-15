@@ -1,4 +1,4 @@
-clear all; clc; clf;
+%clear all; clc; clf;
 
 % Define the parameters
 body_length = 0.3; % m
@@ -35,7 +35,9 @@ y = linspace(body_length / -2, body_length / 2, 60);
 % Define time values
 t_values = linspace(0, 0, 10);
 
-figure (1);
+%figure (1);
+tiledlayout(1,2)
+nexttile
 
 for t = t_values
     % Calculate the z values for current t
@@ -43,15 +45,18 @@ for t = t_values
 
     % Create a 3D plot
     surf(X, Y, Z);
+    shading interp
+    grid off
 
     % Set labels
     xlabel('X');
     ylabel('Y');
     zlabel('Z');
-    title(['Undamped Gymnotiform Motion at t = ', num2str(t)]);
+    %title(['Undamped Gymnotiform Motion at t = ', num2str(t)]);
+    title('Undamped Gymnotiform Motion');
 
     % Add color bar for reference
-    colorbar;
+    %colorbar;
 
     % Set view angle for better visualization
     view(45, 30);
